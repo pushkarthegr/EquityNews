@@ -444,6 +444,13 @@ app.get("/api/news", async (req, res) => {
     res.status(500).json({ error: "Internal Server Error", details: err.message });
   }
 });
+
+const path = require('path');
+
+// Serve index.html for all non-API routes
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
 // Vercel Serverless Export
 module.exports = app;
 
@@ -453,6 +460,7 @@ if (process.env.NODE_ENV !== 'production') {
     console.log(`\n✅ EquityLens Backend running at http://localhost:${PORT}`);
   });
 }
+
 
 
 

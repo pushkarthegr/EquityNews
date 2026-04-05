@@ -455,8 +455,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 
-// At bottom of server.js
-module.exports = app;
+
 
 // Change listen to:
 if (require.main === module) {

@@ -349,7 +349,8 @@
     </div>
 
     <script>
-        const API_BASE = "http://localhost:3001";
+        // Use relative path for API_BASE so it works on both localhost and Vercel natively.
+        const API_BASE = "";
         let currentMode = "IND";
         let currentSection = "Headlines";
         let searchTimeout = null;
@@ -393,11 +394,16 @@
             });
         }
 
+                let currentFetchId = 0;
+
         async function fetchNews(query = null) {
             const listEl = document.getElementById('news-list');
             const metaEl = document.getElementById('result-meta');
             const titleEl = document.getElementById('current-section');
             
+            // Increment fetch ID. Only the request with this ID will render.
+            const fetchId = ++currentFetchId;
+
             // Show loading state
             listEl.innerHTML = Array(6).fill('<div class="skeleton"></div>').join('');
             metaEl.textContent = "Updating terminal feed...";
@@ -421,10 +427,15 @@
                 if (!response.ok) throw new Error('Terminal connection error');
                 
                 const data = await response.json();
+                
+                // If a new fetch started while we were waiting, discard this result to prevent UI overwrite
+                if (fetchId !== currentFetchId) return;
+
                 renderNews(data.items);
                 metaEl.textContent = `${data.items.length} data points | ${currentMode === 'IND' ? 'India' : 'International'}`;
 
             } catch (error) {
+                if (fetchId !== currentFetchId) return;
                 console.error(error);
                 listEl.innerHTML = `<div style="padding:40px; text-align:center; color: var(--text-muted);">
                     <div style="font-size: 40px; margin-bottom: 20px;">⚠️</div>
@@ -459,3 +470,4 @@
     </script>
 </body>
 </html>
+
